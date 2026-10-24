@@ -1,2 +1,1 @@
-# snippity-pip
-Snippity Pip
+Snippity Pip website

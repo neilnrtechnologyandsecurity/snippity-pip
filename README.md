@@ -33,3 +33,12 @@ After changing source templates, run `python3 build.py` and commit the updated `
 `build.py`, `customer_sections.py`, `shop_section.py` and `make_portal.py` generate the HTML. CSS and JavaScript live directly in `dist`. `make_demo_assets.py` can regenerate the example workbook and case-study illustration with the Python `reportlab` dependency; existing asset files are included.
 
 Run `node --test tests/academy-core.test.mjs` to check the academy workflow. Modern Node.js is required.
+
+
+## Client feedback update — 25 October 2026
+
+The six salon cards link to full service pages. Bridal hair sits within blow dries and occasion styling; haircare/GLOWWA advice has its own page, and Meet Pippin includes the supplied biography and qualifications. Service-specific enquiry links select the relevant subject in the contact form.
+
+Brand accents use a muted gold palette. The assurance strip uses a local SVG sunflower so it cannot become an emoji on mobile; it is an original motif inspired by the existing logo, not an exported Canva asset. The homepage academy seal has no white backing and blends with the page. Facebook links use the page-specific URL verified against the public Thesnippitypip listing.
+
+Service and haircare copy is maintained in service_content.py. No live payment or authentication functionality was changed.

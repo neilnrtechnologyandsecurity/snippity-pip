@@ -51,4 +51,4 @@ The six service cards are retained, with a prominent bridal and occasion hair se
 
 Transparent logo variants were produced with the built-in image tool using the original logo files as edit targets. Prompt: remove all white background inside and outside the circular borders, preserve the original artwork, lettering, colours and proportions, and output genuine alpha transparency. Original logo assets are retained.
 
-TikTok is awaiting the exact profile URL; no unverified account or placeholder link is published.
+TikTok links use https://www.tiktok.com/@thesnippitypip, using the handle confirmed by Neil. The link appears alongside Instagram and Facebook in the shared footer and on the contact page.

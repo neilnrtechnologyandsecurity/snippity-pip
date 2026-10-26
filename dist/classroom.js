@@ -45,7 +45,7 @@ const lessons = [
   </fieldset><button class="btn outline" type="submit">Check my answer <span aria-hidden="true">→</span></button><div id="quiz-feedback" role="status" aria-live="polite"></div></form>
   <h2>Your four case studies</h2><p>In the full course, you’ll follow the confirmed assessment brief and submit your work for review. These ticks are just a preview of progress tracking.</p><div class="case-list">${[1,2,3,4].map(n=>`<label class="case-check"><input type="checkbox" data-case="${n-1}">Case study ${n}</label>`).join('')}</div>
   <div class="callout"><h3 style="margin-top:0">Nothing is submitted here.</h3><p>This preview does not collect photographs, client records or assessment files. Your checklist is saved only in this browser.</p></div>
-  <a class="text-link" href="/contact.html?interest=Training%20academy">Ask about the full course <span aria-hidden="true">↗</span></a>`}
+  <a class="text-link" href="/contact.html?interest=Training%20academy">Ask about the full course <span aria-hidden="true"><img class="action-sunflower" src="/assets/sunflower.svg" width="18" height="18" alt="" aria-hidden="true"></span></a>`}
 ];
 
 const storageKey='snippity-pip-course-preview-v1';
@@ -64,7 +64,7 @@ function updateProgress(){
 function showLesson(index,focus=false){
  current=Math.max(0,Math.min(lessons.length-1,index));
  const l=lessons[current];
- content.innerHTML=`<span class="eyebrow">Module 0${current+1} of 06 · Sample outline</span><h1>${l.title}</h1>${l.body}<div class="next-actions"><button class="btn" id="mark-complete">${completed.includes(current)?'Preview explored ✓':'Mark preview as explored'}</button>${current<lessons.length-1?'<button class="text-link" id="next-lesson">Next module <span aria-hidden="true">→</span></button>':'<a class="text-link" href="/academy.html">Back to the academy <span aria-hidden="true">↗</span></a>'}<span class="finish-text" id="completion-status" role="status">${completed.length===6?'You’ve explored all six module previews.':''}</span></div>`;
+ content.innerHTML=`<span class="eyebrow">Module 0${current+1} of 06 · Sample outline</span><h1>${l.title}</h1>${l.body}<div class="next-actions"><button class="btn" id="mark-complete">${completed.includes(current)?'Preview explored ✓':'Mark preview as explored'}</button>${current<lessons.length-1?'<button class="text-link" id="next-lesson">Next module <span aria-hidden="true">→</span></button>':'<a class="text-link" href="/academy.html">Back to the academy <span aria-hidden="true"><img class="action-sunflower" src="/assets/sunflower.svg" width="18" height="18" alt="" aria-hidden="true"></span></a>'}<span class="finish-text" id="completion-status" role="status">${completed.length===6?'You’ve explored all six module previews.':''}</span></div>`;
  updateProgress();
  document.querySelector('#mark-complete').addEventListener('click',()=>{
   if(!completed.includes(current))completed.push(current);save();updateProgress();

@@ -129,7 +129,7 @@ function adminPage() {
   <p class="fine">Only contact people about the course they registered for. Do not share or export this list unnecessarily.</p>
   </main><script src="/waitlist-admin.js" defer></script></body></html>`,
   {headers:{'content-type':'text/html; charset=utf-8','cache-control':'no-store',
-    'content-security-policy':"default-src 'none'; style-src 'self'; script-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
+    'content-security-policy':"default-src 'none'; style-src 'self'; script-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
     'x-content-type-options':'nosniff'}});
 }
 export default {

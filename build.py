@@ -79,5 +79,5 @@ classroom='''<div class="classroom-banner"><strong>Welcome to the sample classro
 render('classroom.html','Curly Blow Dry classroom preview','Try the Curly Blow Dry Training classroom: explore module outlines, a sample knowledge check and locally saved preview progress.',classroom,'<script src="/classroom.js" defer></script>')
 build_portal(OUT)
 (OUT/'robots.txt').write_text('User-agent: *\nDisallow: /\n')
-render('shop.html','Online Store — Coming Soon','The Snippitypip Online Store is coming soon. Discover future haircare and styling favourites, and shop salon gift vouchers now.',shop_markup())
+render('shop.html','Online Store — Coming Soon','The Snippitypip Online Store is coming soon. Explore haircare and styling favourites, and buy salon gift vouchers today.',shop_markup(),'<link rel="stylesheet" href="/shop.css">')
 print('Built', len(list(OUT.glob('*.html'))), 'pages in', OUT)

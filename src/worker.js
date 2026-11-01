@@ -39,7 +39,8 @@ async function checkAdminAccess(request, env) {
     if (!h || !p || !s || extra) return denied('invalid-jwt-format');
     const header = JSON.parse(new TextDecoder().decode(decodePart(h)));
     const payload = JSON.parse(new TextDecoder().decode(decodePart(p)));
-    const domain = String(env.ACCESS_TEAM_DOMAIN).trim().replace(/\\/$/,'');
+    const domainInput = String(env.ACCESS_TEAM_DOMAIN).trim();
+    const domain = domainInput.endsWith('/') ? domainInput.slice(0,-1) : domainInput;
     const issuer = domain.startsWith('https://') ? domain : 'https://' + domain;
     const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
     const allowedEmails = String(env.ADMIN_EMAILS).split(',').map(v => v.trim().toLowerCase());

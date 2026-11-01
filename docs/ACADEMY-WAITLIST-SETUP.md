@@ -59,6 +59,16 @@ Cloudflare Worker Previews do not inherit the production binding. When the two U
 
 Leave all existing top-level keys (name, compatibility_date, workers_dev, preview_urls) intact. Do **not** replace the existing file wholesale with this abbreviated example.
 
+## Turnstile keys now configured (1 November 2026)
+
+Public Site Keys are stored separately in `wrangler.jsonc`:
+- Production `vars.TURNSTILE_SITE_KEY`: `0x4AAAAAAFu74kJjwLp37Nn9`
+- Preview `previews.vars.TURNSTILE_SITE_KEY`: `0x4AAAAAAFu7xmFLXiwDRH3y`
+
+**Private Secret Keys are deliberately absent from GitHub.** Set `TURNSTILE_SECRET` as a Cloudflare Secret separately in the feature branch Preview, using the Development widget's secret. Later add the production widget's secret to Production when launching. Updating Previews Base secrets does not retroactively apply to already-created Previews.
+
+The testing branch is `feature/academy-waitlist`, a **different Preview URL** from the existing `Development` Preview. Add the exact generated feature branch Preview hostname to the Development Turnstile widget's authorized hostnames before testing. Do not use the broad `nrtechnologyandsecurity.workers.dev` domain for this widget.
+
 ## Turnstile
 
 Create a Turnstile widget for the intended live hostnames. Copy its **site key** (public) into Worker variable `TURNSTILE_SITE_KEY`; save the **secret key** securely as `TURNSTILE_SECRET` in Cloudflare (never commit or send it in chat). Configure the Worker Preview's own site key and secret under Previews settings if you want submissions during staging. The backend verifies every Turnstile token via Cloudflare Siteverify, including the result hostname. The form remains disabled if these settings are absent.

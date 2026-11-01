@@ -1,11 +1,19 @@
-
 {
   "name": "snippity-pip-worker",
   "compatibility_date": "2026-10-31",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/admin/*",
+      "/portal.html",
+      "/classroom.html",
+      "/shop.html"
+    ]
   },
   "workers_dev": true,
   "preview_urls": true,
-  "previews": {}
+  "previews": {},
+  "main": "./src/worker.js"
 }

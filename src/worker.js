@@ -157,11 +157,11 @@ export default {
         return json({ok:true});
       } catch {return json({message:'Unable to register right now. Please try again later.'},503);}
     }
-    if (path === '/admin/waitlist' || path.startsWith('/api/admin/')) {
+    if (path.startsWith('/admin/')) {
       if (!await isKate(request,env)) return json({message:'Access denied. Sign in through your approved Cloudflare Access application.'},403);
       if (!env.DB) return json({message:'Database not configured.'},503);
       if (path === '/admin/waitlist' && request.method === 'GET') return adminPage();
-      if (path === '/api/admin/waitlist' && request.method === 'GET') {
+      if (path === '/admin/api/waitlist' && request.method === 'GET') {
         const course = url.searchParams.get('course');
         if (course && !COURSES.includes(course)) return json({message:'Invalid course.'},400);
         try {
@@ -171,7 +171,7 @@ export default {
           return json({records:records.results || []});
         } catch {return json({message:'Unable to load enquiries.'},503);}
       }
-      if (path === '/api/admin/waitlist' && request.method === 'PATCH') {
+      if (path === '/admin/api/waitlist' && request.method === 'PATCH') {
         if (!isSameOrigin(request)) return json({message:'Invalid request origin.'},403);
         let item;try { item=await request.json(); } catch{return json({message:'Invalid update.'},400);}
         const id=Number(item.id), status=normalize(item.status);
@@ -181,7 +181,7 @@ export default {
           return json({ok:true});
         } catch {return json({message:'Could not update enquiry.'},503);}
       }
-      if (path === '/api/admin/waitlist' && request.method === 'DELETE') {
+      if (path === '/admin/api/waitlist' && request.method === 'DELETE') {
         if (!isSameOrigin(request)) return json({message:'Invalid request origin.'},403);
         let item;
         try { item=await request.json(); } catch {return json({message:'Invalid request.'},400);}

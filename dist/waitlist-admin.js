@@ -12,7 +12,7 @@
   async function load() {
     status.textContent = 'Loading enquiries…';
     try {
-      const url = '/api/admin/waitlist' + (filter.value ? '?course=' + encodeURIComponent(filter.value) : '');
+      const url = '/admin/api/waitlist' + (filter.value ? '?course=' + encodeURIComponent(filter.value) : '');
       const response = await fetch(url,{cache:'no-store'});
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Could not load enquiries.');
@@ -41,7 +41,7 @@
           chooser.disabled=true;
           const previous=entry.status;
           try {
-            const response = await fetch('/api/admin/waitlist',{
+            const response = await fetch('/admin/api/waitlist',{
               method:'PATCH',
               headers:{'content-type':'application/json'},
               body:JSON.stringify({id:entry.id,status:chooser.value})
@@ -61,7 +61,7 @@
           if (!confirm('Permanently remove this course enquiry?')) return;
           remove.disabled=true;
           try {
-            const response=await fetch('/api/admin/waitlist',{
+            const response=await fetch('/admin/api/waitlist',{
               method:'DELETE',headers:{'content-type':'application/json'},
               body:JSON.stringify({id:entry.id})
             });

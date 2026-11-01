@@ -17,39 +17,55 @@ function decodePart(text) {
   return Uint8Array.from(raw, c => c.charCodeAt(0));
 }
 let keyCache = { team:'', expires:0, keys:[] };
-async function isKate(request, env) {
-  // Never grant admin access based on an unverified user-supplied email/header.
-  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.ADMIN_EMAILS) return false;
-  const token = request.headers.get('cf-access-jwt-assertion');
-  if (!token) return false;
+async function checkAdminAccess(request, env) {
+  // All cases fail closed. The diagnostic exposes a short reason on the
+  // temporary feature preview only, never a token, email, key or claim.
+  const denied = reason => ({ok:false, reason});
+  if (!env.ACCESS_TEAM_DOMAIN || !env.ACCESS_AUD || !env.ADMIN_EMAILS) {
+    return denied('missing-access-configuration');
+  }
+  // Cloudflare normally adds the JWT assertion header. With static assets,
+  // request routing may omit it; the Access cookie is a safe fallback because
+  // the exact same signed JWT is verified below.
+  let token = request.headers.get('cf-access-jwt-assertion');
+  if (!token) {
+    const cookie = (request.headers.get('cookie') || '').split(';')
+      .map(item => item.trim()).find(item => item.startsWith('CF_Authorization='));
+    if (cookie) token = cookie.slice('CF_Authorization='.length);
+  }
+  if (!token) return denied('no-access-token');
   try {
     const [h,p,s,extra] = token.split('.');
-    if (!h || !p || !s || extra) return false;
+    if (!h || !p || !s || extra) return denied('invalid-jwt-format');
     const header = JSON.parse(new TextDecoder().decode(decodePart(h)));
     const payload = JSON.parse(new TextDecoder().decode(decodePart(p)));
-    const domain = String(env.ACCESS_TEAM_DOMAIN).replace(/\/$/,'');
+    const domain = String(env.ACCESS_TEAM_DOMAIN).trim().replace(/\\/$/,'');
     const issuer = domain.startsWith('https://') ? domain : 'https://' + domain;
     const aud = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
     const allowedEmails = String(env.ADMIN_EMAILS).split(',').map(v => v.trim().toLowerCase());
     const now = Math.floor(Date.now()/1000);
-    if (header.alg !== 'RS256' || !header.kid || payload.iss !== issuer ||
-        !aud.includes(String(env.ACCESS_AUD)) ||
-        !Number.isFinite(payload.exp) || payload.exp <= now ||
+    if (header.alg !== 'RS256' || !header.kid) return denied('invalid-jwt-algorithm-or-key');
+    if (payload.iss !== issuer) return denied('issuer-mismatch');
+    if (!aud.includes(String(env.ACCESS_AUD).trim())) return denied('audience-mismatch');
+    if (!Number.isFinite(payload.exp) || payload.exp <= now ||
         !Number.isFinite(payload.iat) || payload.iat > now + 60 ||
-        (payload.nbf && payload.nbf > now) ||
-        !allowedEmails.includes(String(payload.email || '').toLowerCase())) return false;
+        (payload.nbf && payload.nbf > now)) return denied('expired-or-invalid-jwt-time');
+    if (!allowedEmails.includes(String(payload.email || '').toLowerCase())) {
+      return denied('email-not-allowed');
+    }
     if (keyCache.team !== issuer || keyCache.expires < Date.now()) {
       const response = await fetch(issuer + '/cdn-cgi/access/certs');
-      if (!response.ok) return false;
+      if (!response.ok) return denied('signing-keys-http-' + response.status);
       const keys = await response.json();
       keyCache = {team:issuer,expires:Date.now()+5*60*1000,keys:keys.keys || []};
     }
     const jwk = keyCache.keys.find(k => k.kid === header.kid && k.kty === 'RSA');
-    if (!jwk) return false;
+    if (!jwk) return denied('signing-key-not-found');
     const key = await crypto.subtle.importKey('jwk', jwk, {name:'RSASSA-PKCS1-v1_5', hash:'SHA-256'},false,['verify']);
-    return await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,decodePart(s),
+    const valid = await crypto.subtle.verify('RSASSA-PKCS1-v1_5',key,decodePart(s),
       new TextEncoder().encode(h + '.' + p));
-  } catch {return false;}
+    return valid ? {ok:true} : denied('signature-invalid');
+  } catch {return denied('jwt-validation-error');}
 }
 async function verifyTurnstile(token, request, env) {
   if (!token || !env.TURNSTILE_SECRET) return {ok:false,reason:!token?'missing-token':'missing-secret'};
@@ -158,7 +174,12 @@ export default {
       } catch {return json({message:'Unable to register right now. Please try again later.'},503);}
     }
     if (path.startsWith('/admin/')) {
-      if (!await isKate(request,env)) return json({message:'Access denied. Sign in through your approved Cloudflare Access application.'},403);
+      const access = await checkAdminAccess(request,env);
+      if (!access.ok) {
+        const previewDiagnostic = url.hostname.startsWith('feature-academy-waitlist-') ?
+          {diagnostic:access.reason} : {};
+        return json({message:'Access denied. Sign in through your approved Cloudflare Access application.',...previewDiagnostic},403);
+      }
       if (!env.DB) return json({message:'Database not configured.'},503);
       if (path === '/admin/waitlist' && request.method === 'GET') return adminPage();
       if (path === '/admin/api/waitlist' && request.method === 'GET') {

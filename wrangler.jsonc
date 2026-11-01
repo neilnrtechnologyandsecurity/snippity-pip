@@ -1,11 +1,40 @@
-
 {
   "name": "snippity-pip-worker",
   "compatibility_date": "2026-10-31",
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": [
+      "/api/*",
+      "/admin/*",
+      "/portal.html",
+      "/classroom.html",
+      "/shop.html"
+    ]
   },
   "workers_dev": true,
   "preview_urls": true,
-  "previews": {}
+  "previews": {
+    "d1_databases": [
+      {
+        "binding": "DB",
+        "database_name": "snippity-pip-development",
+        "database_id": "e553ac25-ffb3-4aca-a479-40d0d4b1b899"
+      }
+    ],
+    "vars": {
+      "TURNSTILE_SITE_KEY": "0x4AAAAAAFu7xmFLXiwDRH3y"
+    }
+  },
+  "main": "./src/worker.js",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "snippity-pip-production",
+      "database_id": "fdca51cd-4fc1-4f03-b639-8dfe321d3a15"
+    }
+  ],
+  "vars": {
+    "TURNSTILE_SITE_KEY": "0x4AAAAAAFu74kJjwLp37Nn9"
+  }
 }

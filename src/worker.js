@@ -52,7 +52,7 @@ async function isKate(request, env) {
   } catch {return false;}
 }
 async function verifyTurnstile(token, request, env) {
-  if (!token || !env.TURNSTILE_SECRET) return false;
+  if (!token || !env.TURNSTILE_SECRET) return {ok:false,reason:!token?'missing-token':'missing-secret'};
   try {
     const body = new URLSearchParams({
       secret: String(env.TURNSTILE_SECRET), response:token,
@@ -61,10 +61,16 @@ async function verifyTurnstile(token, request, env) {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{
       method:'POST',body
     });
-    if (!res.ok) return false;
+    if (!res.ok) return {ok:false,reason:'verification-service-error'};
     const result = await res.json();
-    return result.success === true && result.hostname === new URL(request.url).hostname;
-  } catch {return false;}
+    if (result.success !== true) {
+      const codes = Array.isArray(result['error-codes']) ?
+        result['error-codes'].filter(c => typeof c === 'string' && /^[a-z-]{1,40}$/.test(c)).slice(0,3) : [];
+      return {ok:false,reason:codes.join(',') || 'verification-failed'};
+    }
+    if (result.hostname !== new URL(request.url).hostname) return {ok:false,reason:'hostname-mismatch'};
+    return {ok:true};
+  } catch {return {ok:false,reason:'verification-unavailable'};}
 }
 function withSecurityHeaders(response) {
   const headers = new Headers(response.headers);
@@ -130,8 +136,13 @@ export default {
           email.length > 254 || !COURSES.includes(course) || form.consent !== true) {
         return json({message:'Please check your name, email, course and consent.'},400);
       }
-      if (!await verifyTurnstile(normalize(form.token),request,env)) {
-        return json({message:'The security check expired. Please try again.'},400);
+      const verification = await verifyTurnstile(normalize(form.token),request,env);
+      if (!verification.ok) {
+        // Show a non-sensitive cause only on the temporary feature preview.
+        // Production keeps a generic error to avoid disclosing validation details.
+        const diagnostic = url.hostname.startsWith('feature-academy-waitlist-') ?
+          {diagnostic:verification.reason} : {};
+        return json({message:'The security check could not be verified. Please try again.',...diagnostic},400);
       }
       try {
         await env.DB.prepare(`INSERT INTO academy_interests

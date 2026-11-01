@@ -61,7 +61,7 @@ async function verifyTurnstile(token, request, env) {
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{
       method:'POST',body
     });
-    if (!res.ok) return {ok:false,reason:'verification-service-error'};
+    if (!res.ok) return {ok:false,reason:'verification-http-' + res.status};
     const result = await res.json();
     if (result.success !== true) {
       const codes = Array.isArray(result['error-codes']) ?

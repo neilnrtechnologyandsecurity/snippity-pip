@@ -53,6 +53,25 @@
           finally {chooser.disabled=false;}
         });
         tdActions.append(chooser);
+        const remove = document.createElement('button');
+        remove.type='button';
+        remove.textContent='Delete';
+        remove.setAttribute('aria-label','Delete enquiry for ' + entry.name);
+        remove.addEventListener('click',async () => {
+          if (!confirm('Permanently remove this course enquiry?')) return;
+          remove.disabled=true;
+          try {
+            const response=await fetch('/api/admin/waitlist',{
+              method:'DELETE',headers:{'content-type':'application/json'},
+              body:JSON.stringify({id:entry.id})
+            });
+            if (!response.ok) throw new Error('Delete failed');
+            tr.remove();
+            records=records.filter(row=>row.id!==entry.id);
+            status.textContent='Enquiry removed.';
+          } catch {status.textContent='Unable to delete enquiry.';remove.disabled=false;}
+        });
+        tdActions.append(remove);
         tr.append(tdStatus,tdActions);
         tbody.append(tr);
       }

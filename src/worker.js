@@ -190,6 +190,9 @@ export default {
     if (path.startsWith('/admin/')) {
       const access = await checkAdminAccess(request,env);
       if (!access.ok) {
+        // Log only a coarse failure code for authorised troubleshooting.
+        // Never log JWTs, cookies, emails, keys, or token claims.
+        console.warn('Snippity Pip admin Access check:', access.reason);
         const previewDiagnostic = url.hostname.startsWith('feature-academy-waitlist-') ?
           {diagnostic:access.reason,
             ...(access.reason === 'issuer-mismatch' ?

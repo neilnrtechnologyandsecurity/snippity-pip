@@ -102,8 +102,15 @@ export default {
       return new Response('Coming soon',{status:404,headers:{'cache-control':'no-store'}});
     }
     if (path === '/api/waitlist/config' && request.method === 'GET') {
-      const ready = Boolean(env.DB && env.TURNSTILE_SECRET && env.TURNSTILE_SITE_KEY);
-      return json({ready,siteKey:ready ? String(env.TURNSTILE_SITE_KEY) : null});
+      const checks = {
+        database: Boolean(env.DB),
+        turnstileSiteKey: Boolean(env.TURNSTILE_SITE_KEY),
+        turnstileSecret: Boolean(env.TURNSTILE_SECRET)
+      };
+      const ready = Object.values(checks).every(Boolean);
+      const previewDiagnostic = url.hostname.startsWith('feature-academy-waitlist-');
+      return json({ready,siteKey:ready ? String(env.TURNSTILE_SITE_KEY) : null,
+        ...(previewDiagnostic ? {checks} : {})});
     }
     if (path === '/api/waitlist' && request.method === 'POST') {
       if (!env.DB || !env.TURNSTILE_SECRET || !env.TURNSTILE_SITE_KEY) return json({message:'Registrations are not open yet.'},503);

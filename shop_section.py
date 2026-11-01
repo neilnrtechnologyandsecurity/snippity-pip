@@ -1,6 +1,5 @@
 def shop_markup():
-    return '''<link rel="stylesheet" href="/shop.css">
-<section class="shop-hero wrap">
+    return '''<section class="shop-hero wrap">
   <div>
     <span class="eyebrow">The Snippitypip · Online Store</span>
     <span class="shop-coming-label">Opening soon</span>

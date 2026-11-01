@@ -58,7 +58,8 @@
         body: JSON.stringify(payload)
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || 'Please try again.');
+      if (!response.ok) throw new Error((result.message || 'Please try again.') +
+        (result.diagnostic ? ' (Development diagnostic: ' + result.diagnostic + ')' : ''));
       form.reset();
       message('Thanks! You’re on the list. We’ll be in touch with updates about your chosen course.', 'success');
     } catch (error) {

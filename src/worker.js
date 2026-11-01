@@ -54,20 +54,23 @@ async function isKate(request, env) {
 async function verifyTurnstile(token, request, env) {
   if (!token || !env.TURNSTILE_SECRET) return {ok:false,reason:!token?'missing-token':'missing-secret'};
   try {
-    const body = new URLSearchParams({
-      secret: String(env.TURNSTILE_SECRET), response:token,
-      remoteip: request.headers.get('CF-Connecting-IP') || ''
-    });
+    // Use multipart FormData, as in Cloudflare's official Workers Turnstile example.
+    // Do not send an empty optional remoteip field.
+    const body = new FormData();
+    body.append('secret', String(env.TURNSTILE_SECRET));
+    body.append('response', token);
+    const clientIp = request.headers.get('CF-Connecting-IP');
+    if (clientIp) body.append('remoteip', clientIp);
     const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify',{
       method:'POST',body
     });
-    if (!res.ok) return {ok:false,reason:'verification-http-' + res.status};
-    const result = await res.json();
-    if (result.success !== true) {
-      const codes = Array.isArray(result['error-codes']) ?
-        result['error-codes'].filter(c => typeof c === 'string' && /^[a-z-]{1,40}$/.test(c)).slice(0,3) : [];
-      return {ok:false,reason:codes.join(',') || 'verification-failed'};
-    }
+    // Siteverify usually returns JSON even on failed validation. Inspect its
+    // safe error codes before treating the HTTP status as the whole diagnosis.
+    const result = await res.json().catch(() => null);
+    const codes = Array.isArray(result?.['error-codes']) ?
+      result['error-codes'].filter(c => typeof c === 'string' && /^[a-z-]{1,40}$/.test(c)).slice(0,3) : [];
+    if (!res.ok) return {ok:false,reason:'verification-http-' + res.status + (codes.length ? '-' + codes.join(',') : '')};
+    if (result?.success !== true) return {ok:false,reason:codes.join(',') || 'verification-failed'};
     if (result.hostname !== new URL(request.url).hostname) return {ok:false,reason:'hostname-mismatch'};
     return {ok:true};
   } catch {return {ok:false,reason:'verification-unavailable'};}

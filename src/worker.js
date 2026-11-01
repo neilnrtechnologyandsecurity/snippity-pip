@@ -46,7 +46,20 @@ async function checkAdminAccess(request, env) {
     const allowedEmails = String(env.ADMIN_EMAILS).split(',').map(v => v.trim().toLowerCase());
     const now = Math.floor(Date.now()/1000);
     if (header.alg !== 'RS256' || !header.kid) return denied('invalid-jwt-algorithm-or-key');
-    if (payload.iss !== issuer) return denied('issuer-mismatch');
+    // Access issuer is the team URL. Accept only its canonical form or a
+    // trailing slash, while retaining exact team matching and JWT signature checks.
+    if (payload.iss !== issuer && payload.iss !== issuer + '/') {
+      // Hostnames are public configuration identifiers, not token material.
+      // Show them only in the temporary feature preview diagnostic.
+      const hostname = value => {
+        try {
+          const parsed = new URL(String(value));
+          return parsed.protocol === 'https:' ? parsed.hostname : '(invalid-https-url)';
+        } catch { return '(invalid-url)'; }
+      };
+      return {ok:false,reason:'issuer-mismatch',
+        expectedTeam:hostname(issuer), tokenTeam:hostname(payload.iss)};
+    }
     if (!aud.includes(String(env.ACCESS_AUD).trim())) return denied('audience-mismatch');
     if (!Number.isFinite(payload.exp) || payload.exp <= now ||
         !Number.isFinite(payload.iat) || payload.iat > now + 60 ||
@@ -178,7 +191,9 @@ export default {
       const access = await checkAdminAccess(request,env);
       if (!access.ok) {
         const previewDiagnostic = url.hostname.startsWith('feature-academy-waitlist-') ?
-          {diagnostic:access.reason} : {};
+          {diagnostic:access.reason,
+            ...(access.reason === 'issuer-mismatch' ?
+              {expectedTeam:access.expectedTeam, tokenTeam:access.tokenTeam} : {})} : {};
         return json({message:'Access denied. Sign in through your approved Cloudflare Access application.',...previewDiagnostic},403);
       }
       if (!env.DB) return json({message:'Database not configured.'},503);

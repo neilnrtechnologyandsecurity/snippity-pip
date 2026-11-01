@@ -12,7 +12,7 @@ The initial app is on the **feature/academy-waitlist** branch, not production ma
 - Form: name, email, course, explicit course-update consent, Turnstile, spam honeypot and server validation.
 - Worker API: POST /api/waitlist; GET /api/waitlist/config.
 - Private administration page: /admin/waitlist, list/filter/export/update/delete.
-- Access-controlled API: GET/PATCH/DELETE /api/admin/waitlist.
+- Access-controlled API: GET/PATCH/DELETE /admin/api/waitlist.
 - Enquiry status: new -> contacted -> invited. The **invited** status does not send an email yet; invitations are a future feature.
 - Later: integrate admin dashboard into proper tutor login and invite interested people to a course.
 
@@ -75,11 +75,11 @@ Create a Turnstile widget for the intended live hostnames. Copy its **site key**
 
 ## Secure admin
 
-1. In Cloudflare Zero Trust > Access controls > Applications, configure a **self-hosted** Access application protecting the **exact** public hostname paths `/admin/*` and `/api/admin/*`. Restrict the Allow policy to Kate's own verified email (and an approved backup administrator if needed). Do not protect the whole public website.
+1. In Cloudflare Zero Trust > Access controls > Applications, configure a **self-hosted** Access application protecting the **exact** public hostname path `/admin/*` (covers the dashboard and `/admin/api/waitlist`). Restrict the Allow policy to Kate's own verified email (and an approved backup administrator if needed). Do not protect the whole public website.
 2. Under the Worker secrets/variables set `ACCESS_TEAM_DOMAIN` (e.g. `https://your-team.cloudflareaccess.com`), `ACCESS_AUD` (the Access application AUD tag) and `ADMIN_EMAILS` (comma-separated authorised email addresses).
 3. The Worker also validates the Access JWT signature against Cloudflare's JWKS, checks the exact issuer and AUD, expiry, and that the email is authorised. If any of those variables is missing the admin API **fails closed**.
 4. Preview Access auth requires a separate applicable Access app and Preview configuration. Avoid real personal data in previews.
-5. Once the Access policy is active, verify requests without login cannot view /admin/waitlist nor /api/admin/waitlist.
+5. Once the Access policy is active, verify requests without login cannot view /admin/waitlist nor /admin/api/waitlist.
 
 ## Public launch and SEO
 

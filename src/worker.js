@@ -160,6 +160,17 @@ export default {
           return json({ok:true});
         } catch {return json({message:'Could not update enquiry.'},503);}
       }
+      if (path === '/api/admin/waitlist' && request.method === 'DELETE') {
+        if (!isSameOrigin(request)) return json({message:'Invalid request origin.'},403);
+        let item;
+        try { item=await request.json(); } catch {return json({message:'Invalid request.'},400);}
+        const id=Number(item.id);
+        if (!Number.isSafeInteger(id) || id<=0) return json({message:'Invalid request.'},400);
+        try {
+          await env.DB.prepare('DELETE FROM academy_interests WHERE id=?').bind(id).run();
+          return json({ok:true});
+        } catch {return json({message:'Could not delete enquiry.'},503);}
+      }
       return json({message:'Not found'},404);
     }
     if (path.startsWith('/api/') || path.startsWith('/admin/')) return json({message:'Not found'},404);

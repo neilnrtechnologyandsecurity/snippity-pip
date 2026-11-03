@@ -1,2 +1,8 @@
 User-agent: *
-Disallow: /
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /portal.html
+Disallow: /classroom.html
+
+Sitemap: https://thesnippitypip.co.uk/sitemap.xml

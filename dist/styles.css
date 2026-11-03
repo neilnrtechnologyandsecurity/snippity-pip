@@ -96,3 +96,8 @@
 .topbar .action-sunflower,.socials .action-sunflower{width:15px;height:15px}
 @media(max-width:740px){html{scroll-padding-top:150px}.navlinks{max-height:calc(100dvh - 160px);overflow-y:auto}.site-header .brand{grid-column:1;grid-row:1}.site-header .btn:hover{transform:none}}
 @media(max-width:360px){.site-header .brand{gap:8px}.site-header .brand img{width:48px;height:48px}.site-header .wordmark strong{font-size:19px}.nav{column-gap:10px}}
+
+/* A discreet, accessible design-and-hosting credit for NR Technology & Security. */
+.footer-credit{text-align:center;font-size:11px;line-height:1.6;letter-spacing:.01em;color:var(--cream);opacity:.84;padding:0 0 20px}
+.footer-credit a{text-decoration:underline;text-underline-offset:3px}
+.footer-credit a:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}

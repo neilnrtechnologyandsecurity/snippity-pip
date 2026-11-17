@@ -170,7 +170,8 @@ for (const [name, page] of Object.entries(pages)) {
     if (!html.includes('id="salon-directions"')) html = html.replace('PL12 6HU</p><div class="socials">', 'PL12 6HU</p><p><a id="salon-directions" class="text-link" href="https://www.google.com/maps/search/?api=1&amp;query=5%20Brookdown%20Terrace%2C%20Saltash%2C%20PL12%206HU" target="_blank" rel="noopener noreferrer">Get directions to the salon</a></p><div class="socials">');
     const rows = hours.map(([day, opens, closes]) => `<tr><td>${day}</td><td>${opens} – ${closes}</td></tr>`).join('') + '<tr><td>Sunday</td><td>Closed</td></tr>';
     html = html.replace(/<table class="hours">[\s\S]*?<\/table>/, '<table class="hours"><caption class="sr-only">Salon opening hours — appointments by booking</caption><tbody>' + rows + '</tbody></table>');
-    html = html.replace('Please confirm opening hours and availability in the Timely diary.', 'Opening hours match our Timely listing. Appointments are booked in advance; check the live diary for availability.');
+    html = html.replace('Please confirm opening hours and availability in the Timely diary.', 'For appointment changes or questions about your visit, please contact Pippin.')
+      .replace('Opening hours match our Timely listing. Appointments are booked in advance; check the live diary for availability.', 'For appointment changes or questions about your visit, please contact Pippin.');
   }
   html = images(html);
   writeFileSync(path.join(dist, name), html, 'utf8');

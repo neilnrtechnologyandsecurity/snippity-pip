@@ -71,7 +71,7 @@ export const pages = {
   },
   'contact.html': {
     title: 'Contact & Book in Saltash | The Snippitypip',
-    description: 'Find The Snippitypip at 5 Brookdown Terrace, Saltash PL12 6HU. Call 07826 847068, enquire about your hair or book an appointment through Timely.',
+    description: 'Contact The Snippitypip in Saltash, Cornwall. Email Pippin about hair services and consultations, or book your appointment online through Timely.',
     label: 'Contact & appointments', heading: 'Visit us in Saltash.<br><em>Let’s talk hair.</em>',
     intro: 'Book an appointment, ask Pippin about a hair service or enquire about the upcoming training academy. Find The Snippitypip in Saltash, Cornwall.'
   },
@@ -97,12 +97,11 @@ const hours = [
   ['Wednesday', '17:00', '19:00'], ['Thursday', '17:00', '20:00'],
   ['Friday', '09:00', '17:00'], ['Saturday', '09:00', '13:00']
 ];
-const address = { '@type': 'PostalAddress', streetAddress: '5 Brookdown Terrace', addressLocality: 'Saltash', addressRegion: 'Cornwall', postalCode: 'PL12 6HU', addressCountry: 'GB' };
 const business = {
   '@type': 'HairSalon', '@id': origin + '/#salon', name: 'The Snippitypip',
   url: origin + '/', image: origin + '/assets/salon-hero-1280.webp',
-  logo: origin + '/assets/salon-logo-small.webp', telephone: '+447826847068',
-  email: 'thesnippitypip@hotmail.com', address,
+  logo: origin + '/assets/salon-logo-small.webp',
+  email: 'thesnippitypip@hotmail.com',
   description: 'Personal, one-to-one hairdressing with Pippin in Saltash, Cornwall, including cuts, colour, extensions, bridal styling and cosmetic scalp care.',
   areaServed: { '@type': 'City', name: 'Saltash' },
   sameAs: ['https://www.instagram.com/thesnippitypip/', 'https://www.facebook.com/p/Thesnippitypip-100064112289747/', 'https://www.tiktok.com/@thesnippitypip', 'https://thesnippitypip.gettimely.com/'],
@@ -162,12 +161,14 @@ for (const [name, page] of Object.entries(pages)) {
   if (page.heading) html = html.replace(/<h1>[\s\S]*?<\/h1>/, `<h1>${page.heading}</h1>`);
   if (page.intro) html = html.replace(/<p class="lead">[\s\S]*?<\/p>/, `<p class="lead">${esc(page.intro)}</p>`);
   html = html.replace('Personal hairdressing. Thoughtful education. Helping you feel confident in your own next chapter.', 'Personal hairdressing in Saltash, Cornwall. Cuts, colour, extensions and care, with a warm welcome from Pippin.');
-  html = html.replace('<span>Saltash, Cornwall</span><div class="socials">', '<a href="tel:+447826847068">07826 847068</a><address style="font-style:normal">5 Brookdown Terrace<br>Saltash, Cornwall<br>PL12 6HU</address><div class="socials">');
+  // Publish town-level location only; phone and street address are not approved.
+  html = html.replace(/<p><a href="tel:[^"]+">[^<]*<\/a><\/p>/g, '')
+    .replace(/<a href="tel:[^"]+">[^<]*<\/a>/g, '')
+    .replace(/<address\b[^>]*>[\s\S]*?<\/address>/g, '<span>Saltash, Cornwall</span>')
+    .replace(/<p><a id="salon-directions"[^>]*>[\s\S]*?<\/a><\/p>/g, '');
   html = html.replace('Explore the shop preview', 'Online store · coming soon');
   if (name === 'contact.html') {
-    html = html.replace('The Snippitypip is based in Saltash, Cornwall. Your appointment details will confirm where to come.', 'The Snippitypip<br>5 Brookdown Terrace<br>Saltash, Cornwall<br>PL12 6HU');
-    if (!html.includes('id="salon-directions"')) html = html.replace('<h3>Find us in Saltash.</h3>', '<h3>Find us in Saltash.</h3><p><a href="tel:+447826847068">Call 07826 847068</a></p>');
-    if (!html.includes('id="salon-directions"')) html = html.replace('PL12 6HU</p><div class="socials">', 'PL12 6HU</p><p><a id="salon-directions" class="text-link" href="https://www.google.com/maps/search/?api=1&amp;query=5%20Brookdown%20Terrace%2C%20Saltash%2C%20PL12%206HU" target="_blank" rel="noopener noreferrer">Get directions to the salon</a></p><div class="socials">');
+    html = html.replace(/(<h3>Find us in Saltash\.<\/h3>)<p>[\s\S]*?<\/p>/, '$1<p>The Snippitypip is based in Saltash, Cornwall. Your appointment details will confirm where to come.</p>');
     const rows = hours.map(([day, opens, closes]) => `<tr><td>${day}</td><td>${opens} – ${closes}</td></tr>`).join('') + '<tr><td>Sunday</td><td>Closed</td></tr>';
     html = html.replace(/<table class="hours">[\s\S]*?<\/table>/, '<table class="hours"><caption class="sr-only">Salon opening hours — appointments by booking</caption><tbody>' + rows + '</tbody></table>');
     html = html.replace('Please confirm opening hours and availability in the Timely diary.', 'For appointment changes or questions about your visit, please contact Pippin.')

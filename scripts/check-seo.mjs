@@ -31,10 +31,10 @@ for (const url of urls) {
   assert.equal(schemas.length, 1, file + ': schema count');
   const schema = JSON.parse(schemas[0][1]);
   const salon = schema['@graph'].find(n => n['@type'] === 'HairSalon');
-  assert.equal(salon.address.postalCode, 'PL12 6HU');
-  assert.equal(salon.telephone, '+447826847068');
+  assert(!('address' in salon), file + ': street address must not be published');
+  assert(!('telephone' in salon), file + ': phone must not be published');
   assert(!JSON.stringify(schema).includes('aggregateRating'));
-  assert(html.includes('5 Brookdown Terrace') && html.includes('tel:+447826847068'));
+  assert(!/href="tel:|<address\b|"streetAddress"|"postalCode"|"telephone"/.test(html), file + ': unapproved contact details');
   for (const match of html.matchAll(/<img\b[^>]*>/g)) {
     const tag = match[0]; images++;
     assert(/\balt="[^"]*"/.test(tag), file + ': image alt missing');
@@ -55,7 +55,7 @@ for (const url of urls) {
 }
 const contact = readFileSync(path.join(dist, 'contact.html'), 'utf8');
 assert(contact.includes('17:00 – 19:00') && contact.includes('17:00 – 20:00'));
-assert.equal((contact.match(/id="salon-directions"/g) || []).length, 1);
+assert.equal((contact.match(/id="salon-directions"/g) || []).length, 0);
 const academy = readFileSync(path.join(dist, 'academy.html'), 'utf8');
 assert(academy.includes('waitlist.js') && academy.includes('coming soon'));
 const shop = readFileSync(path.join(dist, 'shop.html'), 'utf8');

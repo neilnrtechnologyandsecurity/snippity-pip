@@ -87,3 +87,9 @@ public_pages=["index.html","about.html","academy.html","blow-dries-styling.html"
 sitemap_urls='\n'.join('  <url><loc>'+ORIGIN+('/' if name=='index.html' else '/'+name)+'</loc></url>' for name in public_pages)
 (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+sitemap_urls+'\n</urlset>\n')
 print('Built', len(list(OUT.glob('*.html'))), 'pages in', OUT)
+
+# Keep generated HTML and the checked-in production output in sync.
+# Node is also required for the existing site checks and Cloudflare deployment.
+import subprocess
+subprocess.run(['node', str(Path(__file__).parent/'scripts'/'apply-seo.mjs')], check=True)
+

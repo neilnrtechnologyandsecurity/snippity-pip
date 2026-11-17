@@ -8,7 +8,11 @@
       "/api/*",
       "/admin/*",
       "/portal.html",
+      "/portal",
+      "/portal/",
       "/classroom.html",
+      "/classroom",
+      "/classroom/",
       "/shop.html"
     ]
   },
@@ -38,3 +42,4 @@
     "TURNSTILE_SITE_KEY": "0x4AAAAAAFu74kJjwLp37Nn9"
   }
 }
+

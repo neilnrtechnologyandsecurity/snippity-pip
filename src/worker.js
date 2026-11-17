@@ -137,8 +137,8 @@ export default {
     const url = new URL(request.url), path = url.pathname;
     // Do not expose the unfinished demonstration enrolment/shop URLs on production.
     // The design-only feature branch is treated the same until approval.
-    if (['/portal.html','/classroom.html'].includes(path)) {
-      return new Response('Coming soon',{status:404,headers:{'cache-control':'no-store'}});
+    if (['/portal','/classroom'].includes(path.replace(/\/$/, '').replace(/\.html$/, ''))) {
+      return new Response('Coming soon',{status:404,headers:{'cache-control':'no-store','x-robots-tag':'noindex, nofollow'}});
     }
     if (path === '/api/waitlist/config' && request.method === 'GET') {
       const checks = {
@@ -239,3 +239,4 @@ export default {
     return withSecurityHeaders(response);
   }
 };
+
